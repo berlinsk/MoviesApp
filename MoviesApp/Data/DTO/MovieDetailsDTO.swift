@@ -13,7 +13,7 @@ struct MovieDetailsDTO: Decodable {
     let overview: String
     let releaseDate: String?
     let posterPath: String?
-    let voteAverage: Double
+    let voteAverage: Double?
 
     enum CodingKeys: String, CodingKey {
         case id, title, overview
@@ -25,8 +25,13 @@ struct MovieDetailsDTO: Decodable {
 
 extension MovieDetailsDTO {
     func toDomain() -> MovieDetails {
-        .init(id: id, title: title, overview: overview,
-              releaseDate: releaseDate, posterPath: posterPath,
-              voteAverage: voteAverage)
+        .init(
+            id: id,
+            title: title,
+            overview: overview,
+            releaseDate: releaseDate,
+            posterPath: posterPath,
+            voteAverage: voteAverage ?? 0.0
+        )
     }
 }

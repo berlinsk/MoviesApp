@@ -15,16 +15,3 @@ struct Movie {
     let overview: String
     let releaseDate: String?
 }
-
-extension MovieDTO {
-    func toDomain() -> Movie {
-        Movie(
-            id: id,
-            title: title,
-            posterPath: posterPath,
-            voteAverage: voteAverage,
-            overview: overview,
-            releaseDate: releaseDate
-        )
-    }
-}
