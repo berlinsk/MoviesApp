@@ -22,3 +22,11 @@ struct MovieDetailsDTO: Decodable {
         case voteAverage = "vote_average"
     }
 }
+
+extension MovieDetailsDTO {
+    func toDomain() -> MovieDetails {
+        .init(id: id, title: title, overview: overview,
+              releaseDate: releaseDate, posterPath: posterPath,
+              voteAverage: voteAverage)
+    }
+}
