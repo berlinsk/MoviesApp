@@ -21,16 +21,23 @@ struct FavoritesView: View {
                 } else {
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(vm.items, id: \.id) { m in
-                            MovieCardView(
-                                title: m.title,
-                                rating: m.voteAverage,
-                                posterPath: m.posterPath,
-                                isFavorite: true,
-                                onToggleFavorite: {
-                                    vm.onToggleFavorite(m.id)
-                                }
-                            )
-                            .frame(height: 300)
+                            NavigationLink(
+                                destination: MovieDetailsView(
+                                    vm: ViewModelFactory.movieDetailsVM(id: m.id)
+                                )
+                            ) {
+                                MovieCardView(
+                                    title: m.title,
+                                    rating: m.voteAverage,
+                                    posterPath: m.posterPath,
+                                    isFavorite: true,
+                                    onToggleFavorite: {
+                                        vm.onToggleFavorite(m.id)
+                                    }
+                                )
+                                .frame(height: 300)
+                            }
+                            .buttonStyle(.plain)
                             .onAppear {
                                 if m.id == vm.items.last?.id {
                                     Task {

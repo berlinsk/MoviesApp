@@ -23,15 +23,22 @@ struct TopRatedView: View {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(vm.movies, id: \.id) { m in
-                                MovieCardView(
-                                    title: m.title,
-                                    rating: m.voteAverage,
-                                    posterPath: m.posterPath,
-                                    isFavorite: vm.isFavorite(m.id),
-                                    onToggleFavorite: {
-                                        vm.onToggleFavorite(m.id)
-                                    }
-                                )
+                                NavigationLink(
+                                    destination: MovieDetailsView(
+                                        vm: ViewModelFactory.movieDetailsVM(id: m.id)
+                                    )
+                                ) {
+                                    MovieCardView(
+                                        title: m.title,
+                                        rating: m.voteAverage,
+                                        posterPath: m.posterPath,
+                                        isFavorite: vm.isFavorite(m.id),
+                                        onToggleFavorite: {
+                                            vm.onToggleFavorite(m.id)
+                                        }
+                                    )
+                                }
+                                .buttonStyle(.plain)
                                 .onAppear {
                                     Task {
                                         await vm.loadNextBatchIfNeeded(item: m)
