@@ -1,0 +1,40 @@
+# Xcode
+DerivedData/
+build/
+
+# User state
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Workspace user data
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# SPM
+.swiftpm/
+.build/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Secrets
+MoviesApp/App/Configuration/Secrets.private.plist
+
+# macOS
+.DS_Store
+
+# user interface states
+UserInterfaceState.xcuserstate
