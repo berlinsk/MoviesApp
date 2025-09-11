@@ -55,6 +55,11 @@ struct TopRatedView: View {
                     Text(vm.averageText).font(.subheadline).foregroundColor(.secondary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: SearchView(vm: nil)) {
+                        Image(systemName: "magnifyingglass")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         ForEach(AppTheme.allCases) { themeCase in
                             Button(themeCase.title) {
