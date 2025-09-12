@@ -20,23 +20,23 @@ struct MovieCardView: View {
                 poster
                     .frame(height: 240)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                Image(systemName: "star.fill")
-                    .foregroundColor(.yellow)
-                    .padding(8)
+                Button(action: onToggleFavorite) {
+                    Image(isFavorite ? "StarFull" : "StarEmpty")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .padding(8)
+                }
+                .buttonStyle(.borderless)
             }
+            
             Text(title)
                 .font(.headline)
                 .lineLimit(2)
-            HStack {
-                Text(String(format: "Rating: %.1f", rating))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Button(action: onToggleFavorite) {
-                    Image(systemName: isFavorite ? "heart.fill" : "heart")
-                }
-                .tint(.pink)
-            }
+            
+            Text(String(format: "Rating: %.1f", rating))
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
     }
 

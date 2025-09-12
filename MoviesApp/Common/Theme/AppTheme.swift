@@ -12,6 +12,10 @@ enum AppTheme: Int, CaseIterable, Identifiable {
     var id: Int {
         rawValue
     }
+    
+    var iconName: String {
+        self == .dark ? "moon" : "sun.max"
+    }
 
     var colorScheme: ColorScheme? {
         switch self {

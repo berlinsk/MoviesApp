@@ -32,15 +32,22 @@ struct SearchView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(vm.results, id: \.id) { m in
-                        MovieCardView(
-                            title: m.title,
-                            rating: m.voteAverage,
-                            posterPath: m.posterPath,
-                            isFavorite: vm.isFavorite(m.id),
-                            onToggleFavorite: {
-                                vm.onToggleFavorite(m.id)
-                            }
-                        )
+                        NavigationLink(
+                            destination: MovieDetailsView(
+                                vm: ViewModelFactory.movieDetailsVM(id: m.id)
+                            )
+                        ) {
+                            MovieCardView(
+                                title: m.title,
+                                rating: m.voteAverage,
+                                posterPath: m.posterPath,
+                                isFavorite: vm.isFavorite(m.id),
+                                onToggleFavorite: {
+                                    vm.onToggleFavorite(m.id)
+                                }
+                            )
+                        }
+                        .buttonStyle(.plain)
                         .onAppear {
                             Task {
                                 await vm.loadMoreIfNeeded(item: m)
@@ -50,7 +57,9 @@ struct SearchView: View {
                 }
                 .padding(16)
                 if vm.isLoading {
-                    ProgressView().padding()
+                    DotsLoader()
+                        .frame(width: 80, height: 80)
+                        .padding()
                 }
             }
         }

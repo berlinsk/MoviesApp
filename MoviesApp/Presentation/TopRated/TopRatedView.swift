@@ -17,21 +17,29 @@ struct TopRatedView: View {
         NavigationView {
             Group {
                 if vm.movies.isEmpty && vm.isLoading {
-                    ProgressView()
+                    DotsLoader()
+                        .frame(width: 80, height: 80)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
                         LazyVGrid(columns: columns, spacing: 12) {
                             ForEach(vm.movies, id: \.id) { m in
-                                MovieCardView(
-                                    title: m.title,
-                                    rating: m.voteAverage,
-                                    posterPath: m.posterPath,
-                                    isFavorite: vm.isFavorite(m.id),
-                                    onToggleFavorite: {
-                                        vm.onToggleFavorite(m.id)
-                                    }
-                                )
+                                NavigationLink(
+                                    destination: MovieDetailsView(
+                                        vm: ViewModelFactory.movieDetailsVM(id: m.id)
+                                    )
+                                ) {
+                                    MovieCardView(
+                                        title: m.title,
+                                        rating: m.voteAverage,
+                                        posterPath: m.posterPath,
+                                        isFavorite: vm.isFavorite(m.id),
+                                        onToggleFavorite: {
+                                            vm.onToggleFavorite(m.id)
+                                        }
+                                    )
+                                }
+                                .buttonStyle(.plain)
                                 .onAppear {
                                     Task {
                                         await vm.loadNextBatchIfNeeded(item: m)
@@ -41,7 +49,9 @@ struct TopRatedView: View {
                         }
                         .padding(16)
                         if vm.isLoading {
-                            ProgressView().padding(.vertical, 16)
+                            DotsLoader()
+                                .frame(width: 60, height: 60)
+                                .padding(.vertical, 16)
                         }
                     }
                     .refreshable {
@@ -67,7 +77,7 @@ struct TopRatedView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "sun.max")
+                        Image(systemName: theme.selected.iconName)
                     }
                 }
             }
