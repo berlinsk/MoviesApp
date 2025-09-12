@@ -22,6 +22,7 @@ final class SearchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var page = 1
     private var totalPages = 1
+    private var resolvedQuery: String? // corrected (fuzzy)search query
 
     init(searchMovies: SearchMoviesUseCase,
          favorites: FavoritesRepository,
@@ -64,21 +65,66 @@ final class SearchViewModel: ObservableObject {
         }
         page = 1
         totalPages = 1
+        resolvedQuery = nil
         results = []
         await search(page: page)
     }
+
 
     private func search(page: Int) async {
         isLoading = true
         defer {
             isLoading = false
         }
+
+        let baseQuery = resolvedQuery ?? query
+
         do {
-            let r = try await searchMovies.execute(query: query, page: page)
-            totalPages = r.totalPages
-            results.append(contentsOf: r.movies)
+            let response = try await searchMovies.execute(query: baseQuery, page: page)
+
+            if page == 1, response.movies.isEmpty {
+                // candidates from whole phrase
+                let comboCandidates = FuzzyQuery.candidates(from: query, perTokenLimit: .max, limit: 50)
+
+                //strong fallback: single tokens (longest first) + transpositions
+                let tokens = FuzzyQuery.tokens(from: query).sorted { $0.count > $1.count }
+                var tokenCandidates: [String] = []
+                for token in tokens {
+                    tokenCandidates.appendIfAbsent(token)
+                    for transposed in FuzzyQuery.transpositions(of: token) {
+                        tokenCandidates.appendIfAbsent(transposed)
+                    }
+                }
+
+                // merge candidates, token-based first
+                let allCandidates = (tokenCandidates + comboCandidates).removingDuplicatesCI()
+
+                for candidate in allCandidates where !equalsCI(candidate, baseQuery) {
+                    let altResponse = try await searchMovies.execute(query: candidate, page: 1)
+                    if !altResponse.movies.isEmpty {
+                        resolvedQuery = candidate
+                        totalPages = altResponse.totalPages
+                        let sorted = altResponse.movies.sorted {
+                            $0.title.similarity(to: query) > $1.title.similarity(to: query)
+                        }
+                        results.append(contentsOf: sorted)
+                        return
+                    }
+                }
+            }
+
+            // normal path or no fallback results
+            totalPages = response.totalPages
+            let sorted = response.movies.sorted {
+                $0.title.similarity(to: query) > $1.title.similarity(to: query)
+            }
+            results.append(contentsOf: sorted)
         } catch {
             errorText = String(describing: error)
         }
+    }
+
+    private func equalsCI(_ lhs: String, _ rhs: String) -> Bool {
+        lhs.caseInsensitiveCompare(rhs) == .orderedSame
     }
 }
