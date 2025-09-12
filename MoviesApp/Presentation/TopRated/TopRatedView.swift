@@ -74,7 +74,7 @@ struct TopRatedView: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "sun.max")
+                        Image(systemName: theme.selected.iconName)
                     }
                 }
             }
