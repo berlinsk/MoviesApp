@@ -6,12 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 @MainActor
 final class TopRatedViewModel: ObservableObject {
     private let getTopRated: GetTopRatedMoviesUseCase
     private let toggleFavorite: ToggleFavoriteUseCase
     private let favorites: FavoritesRepository
+    private var cancellables = Set<AnyCancellable>()
 
     @Published private(set) var movies: [Movie] = []
     @Published var isLoading = false
@@ -30,6 +32,13 @@ final class TopRatedViewModel: ObservableObject {
         self.getTopRated = getTopRated
         self.toggleFavorite = toggleFavorite
         self.favorites = favorites
+        
+        favorites.idsPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     func refresh() async {
@@ -42,7 +51,6 @@ final class TopRatedViewModel: ObservableObject {
 
     func onToggleFavorite(_ id: Int) {
         toggleFavorite.execute(id: id)
-        objectWillChange.send()
     }
 
     // pagination: two pages in parallel

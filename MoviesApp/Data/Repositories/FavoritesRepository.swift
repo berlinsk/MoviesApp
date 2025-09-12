@@ -6,36 +6,40 @@
 //
 
 import Foundation
+import Combine
 
-protocol FavoritesRepository {
+protocol FavoritesRepository: AnyObject {
+    var idsPublisher: Published<[Int]>.Publisher { get }
     func toggle(id: Int)
     func isFavorite(id: Int) -> Bool
     func allIDs() -> [Int]
 }
 
-final class UserDefaultsFavoritesRepository: FavoritesRepository {
+final class UserDefaultsFavoritesRepository: FavoritesRepository, ObservableObject {
     private let key = "favorites_ids"
     private let defaults: UserDefaults
 
+    @Published private var ids: [Int] = []
+    var idsPublisher: Published<[Int]>.Publisher { $ids }
+
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
+        self.ids = (defaults.array(forKey: key) as? [Int]) ?? []
     }
 
     func toggle(id: Int) {
-        var set = Set(allIDs())
-        if set.contains(id) {
-            set.remove(id)
+        if ids.contains(id) {
+            ids.removeAll { $0 == id }
         } else {
-            set.insert(id)
+            ids.append(id)
         }
-        defaults.set(Array(set), forKey: key)
+        defaults.set(ids, forKey: key)
     }
 
     func isFavorite(id: Int) -> Bool {
-        Set(allIDs()).contains(id)
+        ids.contains(id)
     }
-
     func allIDs() -> [Int] {
-        (defaults.array(forKey: key) as? [Int]) ?? []
+        ids
     }
 }

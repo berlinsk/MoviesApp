@@ -31,6 +31,7 @@ final class SearchViewModel: ObservableObject {
         self.favorites = favorites
         self.toggleFavorite = toggleFavorite
 
+        // react to query changes
         $query
             .removeDuplicates()
             .debounce(for: .milliseconds(350), scheduler: RunLoop.main)
@@ -40,6 +41,14 @@ final class SearchViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        //react to favorites changes
+        favorites.idsPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     func isFavorite(_ id: Int) -> Bool {
@@ -47,7 +56,6 @@ final class SearchViewModel: ObservableObject {
     }
     func onToggleFavorite(_ id: Int) {
         toggleFavorite.execute(id: id)
-        objectWillChange.send()
     }
 
     func loadMoreIfNeeded(item: Movie) async {
@@ -69,7 +77,6 @@ final class SearchViewModel: ObservableObject {
         results = []
         await search(page: page)
     }
-
 
     private func search(page: Int) async {
         isLoading = true
