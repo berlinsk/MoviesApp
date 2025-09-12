@@ -57,7 +57,9 @@ struct SearchView: View {
                 }
                 .padding(16)
                 if vm.isLoading {
-                    ProgressView().padding()
+                    DotsLoader()
+                        .frame(width: 80, height: 80)
+                        .padding()
                 }
             }
         }

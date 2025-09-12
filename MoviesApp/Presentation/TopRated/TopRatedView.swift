@@ -17,7 +17,8 @@ struct TopRatedView: View {
         NavigationView {
             Group {
                 if vm.movies.isEmpty && vm.isLoading {
-                    ProgressView()
+                    DotsLoader()
+                        .frame(width: 80, height: 80)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
@@ -48,7 +49,9 @@ struct TopRatedView: View {
                         }
                         .padding(16)
                         if vm.isLoading {
-                            ProgressView().padding(.vertical, 16)
+                            DotsLoader()
+                                .frame(width: 60, height: 60)
+                                .padding(.vertical, 16)
                         }
                     }
                     .refreshable {
