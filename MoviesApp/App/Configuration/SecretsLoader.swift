@@ -9,14 +9,21 @@ import Foundation
 
 enum SecretsLoader {
     static var apiKey: String {
-        guard
-            let url = Bundle.main.url(forResource: "Secrets.private", withExtension: "plist"),
-            let data = try? Data(contentsOf: url),
-            let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-            let key = dict["TMDB_API_KEY"] as? String
-        else {
-            fatalError("Secrets.private.plist not configured. Copy Secrets.public.plist and add TMDB_API_KEY")
+        if let url = Bundle.main.url(forResource: "Secrets.private", withExtension: "plist"),
+           let data = try? Data(contentsOf: url),
+           let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+           let key = dict["TMDB_API_KEY"] as? String {
+            return key
         }
-        return key
+
+        if let url = Bundle.main.url(forResource: "Secrets.public", withExtension: "plist"),
+           let data = try? Data(contentsOf: url),
+           let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
+           let key = dict["TMDB_API_KEY"] as? String {
+            return key
+        }
+
+        assertionFailure("No TMDB_API_KEY found in Secrets.private.plist or Secrets.public.plist")
+        return ""
     }
 }
