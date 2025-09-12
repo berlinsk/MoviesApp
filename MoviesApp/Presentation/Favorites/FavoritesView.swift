@@ -32,7 +32,9 @@ struct FavoritesView: View {
                                     posterPath: m.posterPath,
                                     isFavorite: true,
                                     onToggleFavorite: {
-                                        vm.onToggleFavorite(m.id)
+                                        withAnimation(.easeInOut(duration: 0.35)) {
+                                            vm.onToggleFavorite(m.id)
+                                        }
                                     }
                                 )
                                 .frame(height: 300)
@@ -45,9 +47,14 @@ struct FavoritesView: View {
                                     }
                                 }
                             }
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .scale(scale: 0.95)),
+                                removal: .opacity.combined(with: .scale(scale: 0.8))
+                            ))
                         }
                     }
                     .padding(16)
+                    .animation(.easeInOut(duration: 0.35), value: vm.items.count)
 
                     if vm.isLoading {
                         ProgressView().padding(.vertical, 16)
@@ -60,8 +67,5 @@ struct FavoritesView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .transaction {
-            $0.disablesAnimations = true
-        }
     }
 }
