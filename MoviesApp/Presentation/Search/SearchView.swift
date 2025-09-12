@@ -29,37 +29,57 @@ struct SearchView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
+            Text("Search results (\(vm.results.count))")
+                .font(.headline)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+
             ScrollView {
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(vm.results, id: \.id) { m in
-                        NavigationLink(
-                            destination: MovieDetailsView(
-                                vm: ViewModelFactory.movieDetailsVM(id: m.id)
-                            )
-                        ) {
-                            MovieCardView(
-                                title: m.title,
-                                rating: m.voteAverage,
-                                posterPath: m.posterPath,
-                                isFavorite: vm.isFavorite(m.id),
-                                onToggleFavorite: {
-                                    vm.onToggleFavorite(m.id)
+                if !vm.isLoading && vm.results.isEmpty && vm.query.count >= 3 {
+                    VStack(spacing: 16) {
+                        Image("NotFound")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 140, height: 140)
+                            .opacity(0.7)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, 40)
+                } else {
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(vm.results, id: \.id) { m in
+                            NavigationLink(
+                                destination: MovieDetailsView(
+                                    vm: ViewModelFactory.movieDetailsVM(id: m.id)
+                                )
+                            ) {
+                                MovieCardView(
+                                    title: m.title,
+                                    rating: m.voteAverage,
+                                    posterPath: m.posterPath,
+                                    isFavorite: vm.isFavorite(m.id),
+                                    onToggleFavorite: {
+                                        vm.onToggleFavorite(m.id)
+                                    }
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .onAppear {
+                                Task {
+                                    await vm.loadMoreIfNeeded(item: m)
                                 }
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .onAppear {
-                            Task {
-                                await vm.loadMoreIfNeeded(item: m)
                             }
                         }
                     }
-                }
-                .padding(16)
-                if vm.isLoading {
-                    DotsLoader()
-                        .frame(width: 80, height: 80)
-                        .padding()
+                    .padding(16)
+
+                    if vm.isLoading {
+                        DotsLoader()
+                            .frame(width: 80, height: 80)
+                            .padding()
+                    }
                 }
             }
         }
